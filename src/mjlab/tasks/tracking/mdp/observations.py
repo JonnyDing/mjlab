@@ -30,7 +30,7 @@ def motion_anchor_pos_b(env: ManagerBasedRlEnv, command_name: str) -> torch.Tens
 
 def motion_anchor_ori_b(env: ManagerBasedRlEnv, command_name: str) -> torch.Tensor:
   command = cast(MotionCommand, env.command_manager.get_term(command_name))
-
+  # robot_anchor_pos_w --->waist_yaw
   _, ori = subtract_frame_transforms(
     command.robot_anchor_pos_w,
     command.robot_anchor_quat_w,

@@ -111,10 +111,10 @@ def run_play(
     runner = MotionTrackingOnPolicyRunner(
       env, asdict(agent_cfg), log_dir=str(log_dir), device=device
     )
+
   else:
     runner = OnPolicyRunner(env, asdict(agent_cfg), log_dir=str(log_dir), device=device)
   runner.load(str(resume_path), map_location=device)
-
   policy = runner.get_inference_policy(device=device)
 
   if viewer == "native":

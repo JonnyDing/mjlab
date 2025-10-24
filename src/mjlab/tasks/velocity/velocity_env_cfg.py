@@ -186,6 +186,7 @@ class RewardCfg:
     weight=1.0,
     params={"command_name": "twist", "std": math.sqrt(0.25)},
   )
+
   pose: RewardTerm = term(
     RewardTerm,
     func=mdp.posture,
@@ -197,12 +198,22 @@ class RewardCfg:
   )
   dof_pos_limits: RewardTerm = term(RewardTerm, func=mdp.joint_pos_limits, weight=-1.0)
   action_rate_l2: RewardTerm = term(RewardTerm, func=mdp.action_rate_l2, weight=-0.1)
-
+  feet_clearance: RewardTerm = term(
+    RewardTerm,
+    func=mdp.foot_clearance_reward,
+    weight=0.5,
+    params={
+      "target_height": 0.06,
+      "std": math.sqrt(0.25),
+      "tanh_mult": 1.0,
+      "asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_pitch_joint"]),
+    },
+  )
   # Unused, only here as an example.
   air_time: RewardTerm = term(
     RewardTerm,
     func=mdp.feet_air_time,
-    weight=0.0,
+    weight=0.5,
     params={
       "asset_name": "robot",
       "threshold_min": 0.05,

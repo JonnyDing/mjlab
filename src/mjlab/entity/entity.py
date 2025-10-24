@@ -626,6 +626,7 @@ class Entity:
     sensor_adr = {}
     for sensor in self.spec.sensors:
       sensor_name = sensor.name
+      # import ipdb; ipdb.set_trace()
       sns = model.sensor(sensor_name)
       dim = sns.dim[0]
       start_adr = sns.adr[0]

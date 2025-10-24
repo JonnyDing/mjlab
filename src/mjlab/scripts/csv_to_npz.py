@@ -309,17 +309,21 @@ def run_sim(
         import wandb
 
         COLLECTION = output_name
-        run = wandb.init(
-          project="csv_to_npz", name=COLLECTION, entity="gcbc_researchers"
-        )
+        run = wandb.init(project="csv_to_npz", name=COLLECTION, entity="ding268452")
         print(f"[INFO]: Logging motion to wandb: {COLLECTION}")
         REGISTRY = "motions"
         logged_artifact = run.log_artifact(
           artifact_or_path="/tmp/motion.npz", name=COLLECTION, type=REGISTRY
         )
+        current_username = wandb.api.viewer().get("username")
+        print(f"[INFO]: Using WandB username: {current_username}")
+        # run.link_artifact(
+        #   artifact=logged_artifact,
+        #   target_path=f"wandb-registry-{REGISTRY}/{COLLECTION}",
+        # )
         run.link_artifact(
           artifact=logged_artifact,
-          target_path=f"wandb-registry-{REGISTRY}/{COLLECTION}",
+          target_path=f"{current_username}/{REGISTRY}/{COLLECTION}",
         )
         print(f"[INFO]: Motion saved to wandb registry: {REGISTRY}/{COLLECTION}")
         wandb.finish()

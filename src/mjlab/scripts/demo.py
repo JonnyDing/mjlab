@@ -19,6 +19,8 @@ def main() -> None:
   try:
     checkpoint_path = ensure_default_checkpoint()
     motion_path = ensure_default_motion()
+    print("checkpoint_path:", checkpoint_path)
+    print("motion_path:", motion_path)
   except RuntimeError as e:
     print(f"❌ Failed to download demo assets: {e}")
     print("Please check your internet connection and try again.")

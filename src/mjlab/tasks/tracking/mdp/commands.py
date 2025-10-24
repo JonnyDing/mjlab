@@ -30,6 +30,7 @@ class MotionLoader:
   def __init__(
     self, motion_file: str, body_indexes: torch.Tensor, device: str = "cpu"
   ) -> None:
+    # N1:data["body_pos_w"] (N,mj_links,3)
     data = np.load(motion_file)
     self.joint_pos = torch.tensor(data["joint_pos"], dtype=torch.float32, device=device)
     self.joint_vel = torch.tensor(data["joint_vel"], dtype=torch.float32, device=device)
@@ -45,6 +46,7 @@ class MotionLoader:
     self._body_ang_vel_w = torch.tensor(
       data["body_ang_vel_w"], dtype=torch.float32, device=device
     )
+    # 0 2 4 6 8 10 12 13 17 19 23 25
     self._body_indexes = body_indexes
     self.time_step_total = self.joint_pos.shape[0]
 
@@ -82,14 +84,18 @@ class MotionCommand(CommandTerm):
       dtype=torch.long,
       device=self.device,
     )
-
+    self.motion_tmp = np.load(
+      "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/motion.npz"
+    )
     self.motion = MotionLoader(
       self.cfg.motion_file, self.body_indexes, device=self.device
     )
     self.time_steps = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+    # （1，12，3）
     self.body_pos_relative_w = torch.zeros(
       self.num_envs, len(cfg.body_names), 3, device=self.device
     )
+    # （1，12，4）
     self.body_quat_relative_w = torch.zeros(
       self.num_envs, len(cfg.body_names), 4, device=self.device
     )

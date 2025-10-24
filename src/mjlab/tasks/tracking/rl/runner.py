@@ -31,6 +31,7 @@ class MotionTrackingOnPolicyRunner(OnPolicyRunner):
     if self.logger_type in ["wandb"]:
       policy_path = path.split("model")[0]
       filename = policy_path.split("/")[-2] + ".onnx"
+      print(f"Saving model to {filename}")
       if self.alg.policy.actor_obs_normalization:
         normalizer = self.alg.policy.actor_obs_normalizer
       else:
@@ -49,7 +50,7 @@ class MotionTrackingOnPolicyRunner(OnPolicyRunner):
         filename=filename,
       )
       wandb.save(policy_path + filename, base_path=os.path.dirname(policy_path))
-
+      print("save")
       # link the artifact registry to this run
       if self.registry_name is not None:
         wandb.run.use_artifact(self.registry_name)  # type: ignore

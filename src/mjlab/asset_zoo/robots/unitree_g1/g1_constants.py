@@ -106,6 +106,7 @@ ACTUATOR_7520_14 = ElectricActuator(
   velocity_limit=32.0,
   effort_limit=88.0,
 )
+
 ACTUATOR_7520_22 = ElectricActuator(
   reflected_inertia=ARMATURE_7520_22,
   velocity_limit=20.0,
@@ -287,7 +288,7 @@ for a in G1_ARTICULATION.actuators:
   for n in names:
     if n in e and n in s and s[n]:
       G1_ACTION_SCALE[n] = 0.25 * e[n] / s[n]
-
+print(G1_ACTION_SCALE)
 if __name__ == "__main__":
   import mujoco.viewer as viewer
 

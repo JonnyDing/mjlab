@@ -204,7 +204,7 @@ class RewardCfg:
     RewTerm,
     func=mdp.motion_global_anchor_position_error_exp,
     weight=0.5,
-    params={"command_name": "motion", "std": 0.3},
+    params={"command_name": "motion", "std": 0.1},
   )
   motion_global_root_ori: RewTerm = term(
     RewTerm,
@@ -216,7 +216,7 @@ class RewardCfg:
     RewTerm,
     func=mdp.motion_relative_body_position_error_exp,
     weight=1.0,
-    params={"command_name": "motion", "std": 0.3},
+    params={"command_name": "motion", "std": 0.15},
   )
   motion_body_ori: RewTerm = term(
     RewTerm,
@@ -238,6 +238,8 @@ class RewardCfg:
   )
 
   action_rate_l2: RewTerm = term(RewTerm, func=mdp.action_rate_l2, weight=-1e-1)
+  # energy_cost: RewTerm = term(RewTerm, func=mdp.electrical_power_cost, weight=-1e-3)
+  # action_acc: RewTerm = term(RewTerm, func=mdp.joint_acc_l2, weight=-1e-6)
   joint_limit: RewTerm = term(
     RewTerm,
     func=mdp.joint_pos_limits,

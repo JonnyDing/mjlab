@@ -232,6 +232,7 @@ class Simulation:
 
     mjwarp.get_data_into(self._mj_data, self._mj_model, self._wp_data)
     mujoco.mj_forward(self._mj_model, self._mj_data)
+    # import ipdb; ipdb.set_trace()
     self._renderer.update_scene(data=self._mj_data, camera=self.cfg.render.camera)
 
   def render(self) -> np.ndarray:
