@@ -233,7 +233,7 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/motions/motion.npz"
+  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/motions/dance.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/policys/2025-10-22_23-42-45.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/policys/dance.onnx"
 
   num_actions = 21
   num_obs = 114
