@@ -13,7 +13,7 @@ from mjlab.utils.string import resolve_expr
 
 @pytest.fixture(scope="module")
 def g1_entity() -> Entity:
-  return Entity(g1_constants.G1_ROBOT_CFG)
+  return Entity(g1_constants.get_g1_robot_cfg())
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +61,7 @@ def test_keyframe_joint_positions(g1_entity, g1_model) -> None:
   """Test that keyframe joint positions match the configuration."""
   key = g1_model.key("init_state")
   expected_joint_pos = g1_constants.KNEES_BENT_KEYFRAME.joint_pos
-  expected_values = resolve_expr(expected_joint_pos, g1_entity.joint_names)
+  expected_values = resolve_expr(expected_joint_pos, g1_entity.joint_names, 0.0)
   for joint_name, expected_value in zip(
     g1_entity.joint_names, expected_values, strict=True
   ):
