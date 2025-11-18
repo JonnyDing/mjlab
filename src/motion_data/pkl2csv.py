@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 # 1. 读取文件
-input_path = "/home/djw/Desktop/mjlab/src/motion_data/video_CR7_level2_filter_amass_cont_mask_fixed_inter0.5_S30-30_E133-30.pkl"  # 你可以换成自己的路径
+input_path = "/home/djw/Desktop/mjlab/src/motion_data/n1_pkl/data_from_lafan/get_up1s1.pkl"  # 你可以换成自己的路径
 data = joblib.load(input_path)
 data = next(iter(data.values()))
 # 2. 提取三个关键字段
@@ -15,7 +15,9 @@ dof = np.array(data["dof"])
 merged = np.concatenate([root_trans, root_rot, dof], axis=-1)
 
 # === 保存为 CSV ===
-output_path = "//home/djw/Desktop/mjlab/src/motion_data/CR7.csv"
+output_path = (
+  "/home/djw/Desktop/mjlab/src/motion_data/n1_csv/data_from_lafan/get_up1s1.csv"
+)
 pd.DataFrame(merged).to_csv(output_path, header=False, index=False)
 
 print(f"✅ 已保存为: {output_path}")

@@ -1,24 +1,25 @@
 from dataclasses import dataclass, replace
 
 from mjlab.asset_zoo.robots.fourier_n1.n1_constants import N1_ACTION_SCALE, N1_ROBOT_CFG
+from mjlab.sensor import ContactMatch, ContactSensorCfg
 from mjlab.tasks.tracking.tracking_env_cfg import TrackingEnvCfg
-from mjlab.utils.spec_config import ContactSensorCfg
 
 
 @dataclass
 class N1FlatEnvCfg(TrackingEnvCfg):
   def __post_init__(self):
-    self_collision_sensor = ContactSensorCfg(
-      name="self_collision",
-      subtree1="base_link",
-      subtree2="base_link",
-      data=("found",),
-      reduce="netforce",
-      num=10,  # Report up to 10 contacts.
-    )
-    n1_cfg = replace(N1_ROBOT_CFG, sensors=(self_collision_sensor,))
+    self.scene.entities = {"robot": replace(N1_ROBOT_CFG)}
 
-    self.scene.entities = {"robot": n1_cfg}
+    self_collision_cfg = ContactSensorCfg(
+      name="self_collision",
+      primary=ContactMatch(mode="subtree", pattern="base_link", entity="robot"),
+      secondary=ContactMatch(mode="subtree", pattern="base_link", entity="robot"),
+      fields=("found",),
+      reduce="none",
+      num_slots=1,
+    )
+    self.scene.sensors = (self_collision_cfg,)
+
     self.actions.joint_pos.scale = N1_ACTION_SCALE
 
     self.commands.motion.anchor_body_name = "waist_yaw_link"
@@ -75,6 +76,16 @@ class N1FlatEnvCfg_PLAY(N1FlatEnvCfg):
 
     # Effectively infinite episode length.
     self.episode_length_s = int(1e9)
+
+
+@dataclass
+class N1FlatEnvCfg_DEMO(N1FlatEnvCfg_PLAY):
+  def __post_init__(self):
+    super().__post_init__()
+
+    # The demo uses a long motion, so we use uniform sampling to see more diversity
+    # with num_envs > 1.
+    self.commands.motion.sampling_mode = "uniform"
 
 
 @dataclass

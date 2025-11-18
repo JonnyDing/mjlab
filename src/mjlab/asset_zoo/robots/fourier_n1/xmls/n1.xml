@@ -72,7 +72,7 @@
             <freejoint name="base_free_joint"/>
             <geom class="visual" material="black" mesh="base_link"/>
             <geom name="pelvis_collision" class="collision" type="sphere" size="0.07" pos="0 0 -0.07"/>
-            <site name="imu_in_pelvis" size="0.01" pos="0 0 -0.1472"/>
+            <site name="imu_in_pelvis" size="0.01" pos="0.0 0 -0.1472"/>
             <!-- left leg -->
             <body name="left_thigh_pitch_link" pos="0 0.050453 -0.067365" quat="0.991445 -0.130526 0 0">
                 <inertial pos="-0.017114 0.035514 0.00025368" quat="0.233743 0.664829 -0.241027 0.667287" mass="1.31"
@@ -348,4 +348,10 @@
         <exclude body1="base_link" body2="left_thigh_roll_link"/>
         <exclude body1="base_link" body2="right_thigh_roll_link"/>
     </contact>
+    <sensor>
+    <gyro name="imu_ang_vel" site="imu_in_pelvis"/>
+    <velocimeter name="imu_lin_vel" site="imu_in_pelvis"/>
+    <accelerometer name="imu_lin_acc" site="imu_in_pelvis"/>
+    <subtreeangmom name="root_angmom" body="base_link"/>
+  </sensor>
 </mujoco>

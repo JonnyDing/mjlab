@@ -203,7 +203,7 @@ class EventCfg:
       "asset_cfg": SceneEntityCfg("robot", geom_names=[]),  # Override in robot cfg.
       "operation": "abs",
       "field": "geom_friction",
-      "ranges": (0.3, 1.2),
+      "ranges": (0.1, 2.0),
     },
   )
 
