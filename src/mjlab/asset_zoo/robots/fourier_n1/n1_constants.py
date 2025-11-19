@@ -5,12 +5,13 @@ from pathlib import Path
 import mujoco
 
 from mjlab import MJLAB_SRC_PATH
+from mjlab.actuator import BuiltinPositionActuatorCfg
 from mjlab.entity import EntityArticulationInfoCfg, EntityCfg
 from mjlab.utils.actuator import (
   ElectricActuator,
 )
 from mjlab.utils.os import update_assets
-from mjlab.utils.spec_config import ActuatorCfg, CollisionCfg
+from mjlab.utils.spec_config import CollisionCfg
 
 ##
 # MJCF and assets.
@@ -107,7 +108,7 @@ DAMPING_8029E = 2.0 * DAMPING_RATIO_8029E * ARMATURE_8029E * NATURAL_FREQ_8029E
 DAMPING_6043E = 2.0 * DAMPING_RATIO_6043E * ARMATURE_6043E * NATURAL_FREQ_6043E
 DAMPING_4530E = 2.0 * DAMPING_RATIO_4530E * ARMATURE_4530E * NATURAL_FREQ_4530E
 
-N1_ACTUATOR_8029E = ActuatorCfg(
+N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
   joint_names_expr=[
     ".*_hip_pitch_joint",
     ".*_knee_pitch_joint",
@@ -119,7 +120,7 @@ N1_ACTUATOR_8029E = ActuatorCfg(
   damping=DAMPING_8029E,
 )
 
-N1_ACTUATOR_6043E = ActuatorCfg(
+N1_ACTUATOR_6043E = BuiltinPositionActuatorCfg(
   joint_names_expr=[
     ".*_hip_roll_joint",
     ".*_hip_yaw_joint",
@@ -130,7 +131,7 @@ N1_ACTUATOR_6043E = ActuatorCfg(
   stiffness=STIFFNESS_6043E,
   damping=DAMPING_6043E,
 )
-N1_ACTUATOR_4530E = ActuatorCfg(
+N1_ACTUATOR_4530E = BuiltinPositionActuatorCfg(
   joint_names_expr=[
     ".*_ankle_roll_joint",
     ".*_ankle_pitch_joint",
@@ -216,32 +217,37 @@ N1_ARTICULATION = EntityArticulationInfoCfg(
   soft_joint_pos_limit_factor=0.9,
 )
 
-N1_ROBOT_CFG = EntityCfg(
-  init_state=KNEES_BENT_KEYFRAME,
-  collisions=(FULL_COLLISION,),
-  spec_fn=get_spec,
-  articulation=N1_ARTICULATION,
-)
+
+def get_n1_robot_cfg() -> EntityCfg:
+  """Get a fresh G1 robot configuration instance.
+
+  Returns a new EntityCfg instance each time to avoid mutation issues when
+  the config is shared across multiple places.
+  """
+  return EntityCfg(
+    init_state=KNEES_BENT_KEYFRAME,
+    collisions=(FULL_COLLISION,),
+    spec_fn=get_spec,
+    articulation=N1_ARTICULATION,
+  )
+
 
 N1_ACTION_SCALE: dict[str, float] = {}
 for a in N1_ARTICULATION.actuators:
+  assert isinstance(a, BuiltinPositionActuatorCfg)
   e = a.effort_limit
   s = a.stiffness
   names = a.joint_names_expr
-  if not isinstance(e, dict):
-    e = {n: e for n in names}
-  if not isinstance(s, dict):
-    s = {n: s for n in names}
+  assert e is not None
   for n in names:
-    if n in e and n in s and s[n]:
-      N1_ACTION_SCALE[n] = 0.8 * e[n] / s[n]
-print(N1_ACTION_SCALE)
-print("....")
+    N1_ACTION_SCALE[n] = 0.8 * e / s
+
+
 if __name__ == "__main__":
   import mujoco.viewer as viewer
 
   from mjlab.entity.entity import Entity
 
-  robot = Entity(N1_ROBOT_CFG)
+  robot = Entity(get_n1_robot_cfg())
 
   viewer.launch(robot.spec.compile())
