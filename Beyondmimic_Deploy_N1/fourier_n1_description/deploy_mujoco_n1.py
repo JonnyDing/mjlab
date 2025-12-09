@@ -233,7 +233,7 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/Dance_TK.npz"
+  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/dance_tk_60.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/dance_tk_001.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/dance_tk_60.onnx"
 
   num_actions = 21
   num_obs = 114
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         qvel_xml = d.qvel[6 : 6 + num_actions]  # joint positions
         qvel_seq = qvel_xml
         # np.array([qvel_xml[joint_xml.index(joint)] for joint in joint_seq])
-        obs[offset : offset + num_actions] = qvel_seq*0.1  # joint velocities
+        obs[offset : offset + num_actions] = qvel_seq  # joint velocities
         offset += num_actions
         obs[offset : offset + num_actions] = action_buffer
 

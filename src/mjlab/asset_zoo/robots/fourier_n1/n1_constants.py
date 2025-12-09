@@ -86,8 +86,8 @@ ACTUATOR_4530E = ElectricActuator(
   effort_limit=30.0,
 )
 FN_BY_GROUP = {
-  "8029E": (5.0, 1.5),  # hip_pitch, knee_pitch,shoulder_pitch
-  "6043E": (5.0, 0.9),  # hip_roll, hip_yaw, waist_yaw
+  "8029E": (5.0, 1.5),  # hip_pitch, knee_pitch，
+  "6043E": (5.0, 0.9),  # hip_roll, hip_yaw, waist_yaw, shoulder_pitch
   "4530E": (5.0, 0.9),  # ankles, shoulder_roll/yaw, elbow_pitch
 }
 
@@ -113,7 +113,6 @@ N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
     ".*_hip_pitch_joint",
     ".*_knee_pitch_joint",
     ".*_shoulder_pitch_joint",
-     "waist_yaw_joint",
   ),
   effort_limit=ACTUATOR_8029E.effort_limit,
   armature=ACTUATOR_8029E.reflected_inertia,
@@ -125,7 +124,7 @@ N1_ACTUATOR_6043E = BuiltinPositionActuatorCfg(
   joint_names_expr=(
     ".*_hip_roll_joint",
     ".*_hip_yaw_joint",
-   
+    "waist_yaw_joint",
   ),
   effort_limit=ACTUATOR_6043E.effort_limit,
   armature=ACTUATOR_6043E.reflected_inertia,
