@@ -67,7 +67,7 @@ def joint_vel_rel(
   default_joint_vel = asset.data.default_joint_vel
   assert default_joint_vel is not None
   jnt_ids = asset_cfg.joint_ids
-  return (asset.data.joint_vel[:, jnt_ids] - default_joint_vel[:, jnt_ids])*0.1
+  return (asset.data.joint_vel[:, jnt_ids] - default_joint_vel[:, jnt_ids])
 
 
 ##
