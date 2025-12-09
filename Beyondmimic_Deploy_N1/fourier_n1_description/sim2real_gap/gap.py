@@ -1,4 +1,6 @@
 import math
+import matplotlib
+matplotlib.use("Agg")  # 禁用 TkAgg，避免图标加载错误
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -77,7 +79,7 @@ def plot_category_comparison(data_sim, data_real, title):
   for j in range(num_dims, len(axes)):
     axes[j].axis("off")
 
-  plt.tight_layout()
+  # plt.tight_layout()
   plt.show()
 
 

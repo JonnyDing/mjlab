@@ -9,7 +9,7 @@ from mjlab.entity import Entity
 from mjlab.scene import Scene
 from mjlab.sim.sim import Simulation, SimulationCfg
 from mjlab.tasks.tracking.config.n1.env_cfgs import fourier_n1_flat_tracking_env_cfg
-from mjlab.third_party.isaaclab.isaaclab.utils.math import (
+from mjlab.utils.lab_api.math import (
   axis_angle_from_quat,
   quat_conjugate,
   quat_mul,

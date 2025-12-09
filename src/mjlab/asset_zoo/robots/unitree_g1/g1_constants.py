@@ -231,7 +231,7 @@ FULL_COLLISION = CollisionCfg(
   geom_names_expr=(".*_collision",),
   condim={r"^(left|right)_foot[1-7]_collision$": 3, ".*_collision": 1},
   priority={r"^(left|right)_foot[1-7]_collision$": 1},
-  friction={r"^(left|right)_foot[1-7]_collision$": (0.6,)},
+  friction={r"^(left|right)_foot[1-7]_collision$": (0.8,)},
 )
 
 FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
@@ -240,7 +240,7 @@ FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
   conaffinity=1,
   condim={r"^(left|right)_foot[1-7]_collision$": 3, ".*_collision": 1},
   priority={r"^(left|right)_foot[1-7]_collision$": 1},
-  friction={r"^(left|right)_foot[1-7]_collision$": (0.6,)},
+  friction={r"^(left|right)_foot[1-7]_collision$": (0.8,)},
 )
 
 # This disables all collisions except the feet.
@@ -251,7 +251,7 @@ FEET_ONLY_COLLISION = CollisionCfg(
   conaffinity=1,
   condim=3,
   priority=1,
-  friction=(0.6,),
+  friction=(0.8,),
 )
 
 ##

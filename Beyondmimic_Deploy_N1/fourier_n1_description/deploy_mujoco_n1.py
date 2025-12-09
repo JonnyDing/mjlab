@@ -233,7 +233,7 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/motions/dance.npz"
+  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/Dance_TK.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/model/policys/dance.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/dance_tk_001.onnx"
 
   num_actions = 21
   num_obs = 114
@@ -253,21 +253,21 @@ if __name__ == "__main__":
       joint_seq = prop.value.split(",")
     if prop.key == "default_joint_pos":
       joint_pos_array_seq = np.array([float(x) for x in prop.value.split(",")])
-      joint_pos_array = np.array(
-        [joint_pos_array_seq[joint_seq.index(joint)] for joint in joint_xml]
-      )
+      # joint_pos_array = np.array(
+      #   [joint_pos_array_seq[joint_seq.index(joint)] for joint in joint_xml]
+      # )
     if prop.key == "joint_stiffness":
       stiffness_array_seq = np.array([float(x) for x in prop.value.split(",")])
-      stiffness_array = np.array(
-        [stiffness_array_seq[joint_seq.index(joint)] for joint in joint_xml]
-      )
+      # stiffness_array = np.array(
+      #   [stiffness_array_seq[joint_seq.index(joint)] for joint in joint_xml]
+      # )
       # stiffness_array = np.array([])
 
     if prop.key == "joint_damping":
       damping_array_seq = np.array([float(x) for x in prop.value.split(",")])
-      damping_array = np.array(
-        [damping_array_seq[joint_seq.index(joint)] for joint in joint_xml]
-      )
+      # damping_array = np.array(
+      #   [damping_array_seq[joint_seq.index(joint)] for joint in joint_xml]
+      # )
 
     if prop.key == "action_scale":
       action_scale = np.array([float(x) for x in prop.value.split(",")])
@@ -297,7 +297,7 @@ if __name__ == "__main__":
   )
   motionposcurrent = motionpos[timestep, 13, :]
   motionquatcurrent = motionquat[timestep, 13, :]
-  target_dof_pos = joint_pos_array.copy()
+  target_dof_pos = joint_pos_array_seq.copy()
   d.qpos[7:] = target_dof_pos
   # target_dof_pos = joint_pos_array_seq
   body_name = "waist_yaw_link"  # robot_ref_body_index=3 motion_ref_body_index=7
@@ -330,10 +330,10 @@ if __name__ == "__main__":
       tau = pd_control(
         target_dof_pos,
         d.qpos[7:],
-        stiffness_array,
-        np.zeros_like(damping_array),
+        stiffness_array_seq,
+        np.zeros_like(damping_array_seq),
         d.qvel[6:],
-        damping_array,
+        damping_array_seq,
       )  # xml
 
       counter += 1
@@ -366,15 +366,13 @@ if __name__ == "__main__":
         obs[offset : offset + 3] = d.qvel[3:6]
         offset += 3
         qpos_xml = d.qpos[7 : 7 + num_actions]  # joint positions
-        qpos_seq = np.array([qpos_xml[joint_xml.index(joint)] for joint in joint_seq])
-        obs[offset : offset + num_actions] = (
-          qpos_seq - joint_pos_array_seq
-        )  # joint positions
+        # qpos_seq = np.array([qpos_xml[joint_xml.index(joint)] for joint in joint_seq])
+        obs[offset : offset + num_actions] = (d.qpos[7 : 7 + num_actions]- joint_pos_array_seq)  # joint positions
         offset += num_actions
         qvel_xml = d.qvel[6 : 6 + num_actions]  # joint positions
         qvel_seq = qvel_xml
         # np.array([qvel_xml[joint_xml.index(joint)] for joint in joint_seq])
-        obs[offset : offset + num_actions] = qvel_seq  # joint velocities
+        obs[offset : offset + num_actions] = qvel_seq*0.1  # joint velocities
         offset += num_actions
         obs[offset : offset + num_actions] = action_buffer
 
@@ -393,13 +391,13 @@ if __name__ == "__main__":
         target_dof_pos = target_dof_pos.reshape(
           -1,
         )
-        target_dof_pos = np.array(
-          [target_dof_pos[joint_seq.index(joint)] for joint in joint_xml]
-        )
+        # target_dof_pos = np.array(
+        #   [target_dof_pos[joint_seq.index(joint)] for joint in joint_xml]
+        # )
         timestep += 1
         if timestep >= motionpos.shape[0]:
-          timestep = 0
-
+          # viewer.close()
+          timestep=0
       d.ctrl[:] = tau
       # Pick up changes to the physics state, apply perturbations, update options from GUI.
       viewer.sync()

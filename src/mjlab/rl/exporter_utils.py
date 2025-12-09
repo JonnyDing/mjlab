@@ -6,7 +6,7 @@ import torch
 from mjlab.entity import Entity
 from mjlab.envs import ManagerBasedRlEnv
 from mjlab.envs.mdp.actions.joint_actions import JointAction
-
+from mjlab.utils.logging import print_info
 
 def list_to_csv_str(arr, *, decimals: int = 3, delimiter: str = ",") -> str:
   """Convert list to CSV string with specified decimal precision."""
@@ -44,6 +44,11 @@ def get_base_metadata(
   ctrl_ids_natural = [joint_name_to_ctrl_id[jname] for jname in robot.joint_names]
   joint_stiffness = env.sim.mj_model.actuator_gainprm[ctrl_ids_natural, 0]
   joint_damping = -env.sim.mj_model.actuator_biasprm[ctrl_ids_natural, 2]
+  # import ipdb; ipdb.set_trace()
+  print_info(f"[INFO] {robot.joint_names}")
+  print_info(f"[INFO] {joint_stiffness.tolist()}")
+  print_info(f"[INFO] {joint_damping.tolist()}")
+  print_info(f"[INFO] {robot.data.default_joint_pos[0].cpu().tolist()}")
   return {
     "run_path": run_path,
     "joint_names": list(robot.joint_names),

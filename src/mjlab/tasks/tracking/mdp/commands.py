@@ -87,9 +87,9 @@ class MotionCommand(CommandTerm):
       dtype=torch.long,
       device=self.device,
     )
-    self.motion_tmp = np.load(
-      "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/motion.npz"
-    )
+    # self.motion_tmp = np.load(
+    #   "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/motion.npz"
+    # )
     self.motion = MotionLoader(
       self.cfg.motion_file, self.body_indexes, device=self.device
     )
@@ -319,6 +319,7 @@ class MotionCommand(CommandTerm):
       self._uniform_sampling(env_ids)
     else:
       assert self.cfg.sampling_mode == "adaptive"
+      # import ipdb;ipdb.set_trace()
       self._adaptive_sampling(env_ids)
 
     root_pos = self.body_pos_w[:, 0].clone()

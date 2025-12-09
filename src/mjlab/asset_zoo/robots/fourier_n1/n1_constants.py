@@ -86,8 +86,8 @@ ACTUATOR_4530E = ElectricActuator(
   effort_limit=30.0,
 )
 FN_BY_GROUP = {
-  "8029E": (5.0, 1.5),  # hip_pitch, knee_pitch
-  "6043E": (5.0, 0.9),  # hip_roll, hip_yaw, waist_yaw, shoulder_pitch
+  "8029E": (5.0, 1.5),  # hip_pitch, knee_pitch,shoulder_pitch
+  "6043E": (5.0, 0.9),  # hip_roll, hip_yaw, waist_yaw
   "4530E": (5.0, 0.9),  # ankles, shoulder_roll/yaw, elbow_pitch
 }
 
@@ -109,11 +109,12 @@ DAMPING_6043E = 2.0 * DAMPING_RATIO_6043E * ARMATURE_6043E * NATURAL_FREQ_6043E
 DAMPING_4530E = 2.0 * DAMPING_RATIO_4530E * ARMATURE_4530E * NATURAL_FREQ_4530E
 
 N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
-  joint_names_expr=[
+  joint_names_expr=(
     ".*_hip_pitch_joint",
     ".*_knee_pitch_joint",
     ".*_shoulder_pitch_joint",
-  ],
+     "waist_yaw_joint",
+  ),
   effort_limit=ACTUATOR_8029E.effort_limit,
   armature=ACTUATOR_8029E.reflected_inertia,
   stiffness=STIFFNESS_8029E,
@@ -121,24 +122,24 @@ N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
 )
 
 N1_ACTUATOR_6043E = BuiltinPositionActuatorCfg(
-  joint_names_expr=[
+  joint_names_expr=(
     ".*_hip_roll_joint",
     ".*_hip_yaw_joint",
-    "waist_yaw_joint",
-  ],
+   
+  ),
   effort_limit=ACTUATOR_6043E.effort_limit,
   armature=ACTUATOR_6043E.reflected_inertia,
   stiffness=STIFFNESS_6043E,
   damping=DAMPING_6043E,
 )
 N1_ACTUATOR_4530E = BuiltinPositionActuatorCfg(
-  joint_names_expr=[
+  joint_names_expr=(
     ".*_ankle_roll_joint",
     ".*_ankle_pitch_joint",
     ".*_shoulder_roll_joint",
     ".*_shoulder_yaw_joint",
     ".*_elbow_pitch_joint",
-  ],
+  ),
   effort_limit=ACTUATOR_4530E.effort_limit,
   armature=ACTUATOR_4530E.reflected_inertia,
   stiffness=STIFFNESS_4530E,
@@ -178,14 +179,14 @@ KNEES_BENT_KEYFRAME = EntityCfg.InitialStateCfg(
 # Self-collisions are given condim=1 while foot collisions
 # are given condim=3 and custom friction and solimp.
 FULL_COLLISION = CollisionCfg(
-  geom_names_expr=[".*_collision"],
+  geom_names_expr=(".*_collision",),
   condim={r"^(left|right)_foot[1-7]_collision$": 3, ".*_collision": 1},
   priority={r"^(left|right)_foot[1-7]_collision$": 1},
   friction={r"^(left|right)_foot[1-7]_collision$": (0.6,)},
 )
 
 FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
-  geom_names_expr=[".*_collision"],
+  geom_names_expr=(".*_collision",),
   contype=0,
   conaffinity=1,
   condim={r"^(left|right)_foot[1-7]_collision$": 3, ".*_collision": 1},
@@ -196,7 +197,7 @@ FULL_COLLISION_WITHOUT_SELF = CollisionCfg(
 # This disables all collisions except the feet.
 # Feet get condim=3, all other geoms are disabled.
 FEET_ONLY_COLLISION = CollisionCfg(
-  geom_names_expr=[r"^(left|right)_foot[1-7]_collision$"],
+  geom_names_expr=(r"^(left|right)_foot[1-7]_collision$",),
   contype=0,
   conaffinity=1,
   condim=3,
@@ -214,9 +215,10 @@ N1_ARTICULATION = EntityArticulationInfoCfg(
     N1_ACTUATOR_6043E,
     N1_ACTUATOR_4530E,
   ),
+  
   soft_joint_pos_limit_factor=0.9,
 )
-
+# import ipdb; ipdb.set_trace() 
 
 def get_n1_robot_cfg() -> EntityCfg:
   """Get a fresh G1 robot configuration instance.

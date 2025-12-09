@@ -92,9 +92,9 @@
 
     <worldbody>
 
-        <body name="base_link" pos="0 0 1.70">
+        <body name="base_link" pos="0 0 0.686" >
             <!-- Add freejoint will add additional 7 dofs -->
-            <!-- <freejoint name="base_free_joint"/> -->
+            <freejoint name="base_free_joint"/>
 
             <inertial pos="0.00025493 1.049e-05 -0.05502" quat="0.704566 0.709615 0.00402273 -0.00405522" mass="3.18" diaginertia="0.0111393 0.00899019 0.00761893"/>
             <geom class="visual" mesh="base_link"/>
@@ -388,14 +388,14 @@
 
         <light diffuse=".5 .5 .5" pos="-3 -3 5" dir="3 3 -5" castshadow="true"/>
     </worldbody>
-            <!-- <keyframe>
+            <keyframe>
         <key name="home"
-             qpos="0 0 0.686 1.0 0.0 0.0  0.0
-                   -0.2468 0 0 0.5181 0 -0.2468
-                   -0.2468 0 0 0.5181 0 -0.2468
+             qpos="0.0 0.0 0.225 0.7071068 0.0 0.7071068 0.0
+                   1.57 1.0 -1.57 1.57 0 0.30
+                   1.57 -1.0 1.57 1.57 0 0.30
                    0
-                   0 1.57 0 1.57
-                   0 -1.57 0 1.57 "
+                   0 1.57 0 0
+                   0 -1.57 0 0 "
         />
-    </keyframe> -->
+    </keyframe>
 </mujoco>

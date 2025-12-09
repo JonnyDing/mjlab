@@ -110,12 +110,7 @@ Train a Unitree G1 to mimic reference motions. mjlab uses
 
 3. **Process and upload motion files**:
    ```bash
-   MUJOCO_GL=egl uv run src/mjlab/scripts/csv_to_npz.py \
-     --input-file /path/to/motion.csv \
-     --output-name motion_name \
-     --input-fps 30 \
-     --output-fps 50 \
-     --render  # Optional: generates preview video
+   MUJOCO_GL=egl uv run src/mjlab/scripts/csv_to_npz.py --input-file /path/to/motion.csv --output-name motion_name --input-fps 30 --output-fps 50 --render  # Optional: generates preview video
    ```
 
 > **Note**: For detailed motion preprocessing instructions, see the
