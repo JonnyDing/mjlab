@@ -127,11 +127,11 @@ class MotionLoader:
     self.motion_dof_vels = torch.gradient(
       self.motion_dof_poss, spacing=self.output_dt, dim=0
     )[0]
-    self.motion_dof_vels = torch.clamp(self.motion_dof_vels, min=-0.1, max=0.1)
-    exceed_mask = torch.abs(self.motion_dof_vels) > 0.1
-    num_exceed = exceed_mask.sum().item()
+    # self.motion_dof_vels[:,12] = torch.clamp(self.motion_dof_vels[:,12], min=-0.1, max=0.1)
+    # exceed_mask = torch.abs(self.motion_dof_vels) > 0.1
+    # num_exceed = exceed_mask.sum().item()
 
-    print(f"超过阈值的关节速度数量: {num_exceed}")
+    # print(f"超过阈值的关节速度数量: {num_exceed}")
     self.motion_base_ang_vels = self._so3_derivative(
       self.motion_base_rots, self.output_dt
     )

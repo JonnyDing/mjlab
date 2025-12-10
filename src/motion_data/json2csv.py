@@ -11,9 +11,9 @@ with open(json_path, 'r') as f:
 frames = np.array(data["Frames"])
 
 # 提取各部分
-root_pos = frames[4650:, :3]          # 根节点位置
-quat = frames[4650:, 3:7]            # 四元数 (x, y, z, w)
-dof_full = frames[4650:, 13:36]       # 完整的dof_pos
+root_pos = frames[:4500, :3]          # 根节点位置
+quat = frames[:4500, 3:7]            # 四元数 (x, y, z, w)
+dof_full = frames[:4500, 13:36]       # 完整的dof_pos
 
 # 删除第29列和第24列（对应索引28和23）
 # 在dof_full中，对应索引21和16
@@ -24,7 +24,7 @@ dof_filtered = dof_full[:, cols_to_keep]
 combined = np.concatenate([root_pos, quat, dof_filtered], axis=1)
 
 # 保存为CSV
-output_path = "/home/djw/Desktop/mjlab/src/motion_data/n1_json/Dance_Olypic_processed_6200.csv"
+output_path = "/home/djw/Desktop/mjlab/src/motion_data/n1_json/Dance_Olypic_processed_4500.csv"
 pd.DataFrame(combined).to_csv(output_path, header=False, index=False)
 
 print(f"处理完成！保存到: {output_path}")
