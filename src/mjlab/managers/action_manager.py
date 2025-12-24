@@ -1,4 +1,49 @@
-"""Action manager for processing actions sent to the environment."""
+"""
+Action Manager for MuJoCo-based Reinforcement Learning Environments.
+
+This module provides a flexible and modular action management system for mjlab,
+a robotics RL research framework combining Isaac Lab's API with MuJoCo physics.
+The ActionManager coordinates multiple action terms that translate neural network
+outputs into physical actuation commands for simulated robots.
+
+Key Features:
+1. Modular Action Processing: Supports multiple independent action terms (e.g., 
+   joint positions, velocities, forces) that can be combined flexibly.
+2. Dimension Management: Automatically handles action dimension validation and 
+   splitting across different action terms.
+3. State Tracking: Maintains current and previous action states for temporal 
+   consistency.
+4. Device-Agnostic: Works seamlessly with both CPU and GPU tensors.
+5. Debug Support: Provides human-readable summaries of active action terms.
+
+Architecture:
+- ActionTerm (abstract base class): Defines interface for individual action types
+- ActionManager (main class): Coordinates multiple ActionTerm instances
+
+Usage in mjlab:
+1. Configure action terms in task configuration files (YAML/JSON)
+2. ActionManager processes neural network outputs during environment steps
+3. Each ActionTerm applies its specific action type to the simulation
+
+Example Configuration:
+  action_manager:
+    joint_pos:
+      class_type: JointPositionAction
+      asset_name: "robot"
+      action_dim: 12
+    joint_vel:
+      class_type: JointVelocityAction  
+      asset_name: "robot"
+      action_dim: 12
+
+This creates an ActionManager with total action dimension 24, splitting incoming
+actions between position and velocity control terms.
+
+See Also:
+- mjlab.managers.manager_base: Base classes for all managers
+- mjlab.managers.observation_manager: Complementary observation management
+- mjlab.managers.reward_manager: Reward computation and management
+"""
 
 from __future__ import annotations
 

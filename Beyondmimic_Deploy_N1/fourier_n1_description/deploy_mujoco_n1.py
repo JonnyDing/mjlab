@@ -233,7 +233,7 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/Olypic.npz"
+  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/fall_stand.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/Olypic.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/fall_stand.onnx"
 
   num_actions = 21
   num_obs = 114
@@ -253,6 +253,10 @@ if __name__ == "__main__":
       joint_seq = prop.value.split(",")
     if prop.key == "default_joint_pos":
       joint_pos_array_seq = np.array([float(x) for x in prop.value.split(",")])
+#       joint_pos_array_seq = np.array([-0.45131728, 0.29014614,  0.560362,    0.6264879,   0.0861254,   0.05319305,
+#  -0.3673631,  -0.13408968, -0.6193387,   0.4790135,   0.16466744,  0.11658649,
+#   0.02388579, -0.46905056,  1.5729612,   0.76839554,  1.0497727,  -0.7251,
+#  -1.672406,   -0.57139504,  1.076511  ])
       # joint_pos_array = np.array(
       #   [joint_pos_array_seq[joint_seq.index(joint)] for joint in joint_xml]
       # )

@@ -1,22 +1,23 @@
-import joblib
+import pickle
 import numpy as np
 import pandas as pd
 
 # 1. 读取文件
-input_path = "/home/djw/Desktop/mjlab/src/motion_data/n1_pkl/data_from_mocap/data_clean_Dance_TK.pkl"  # 你可以换成自己的路径
-data = joblib.load(input_path)
-data = next(iter(data.values()))
+input_path = "/home/djw/Desktop/mocap/motion_data/g1/g1_pkl/jump_degree_level5.pkl"  # 你可以换成自己的路径
+with open(input_path, "rb") as f:
+  data = pickle.load(f)
+# data = next(iter(data.values()))
 # 2. 提取三个关键字段
-root_trans = np.array(data["root_trans_offset"])
+root_trans = np.array(data["root_pos"])
 root_rot = np.array(data["root_rot"])
-dof = np.array(data["dof"])
+dof = np.array(data["dof_pos"])
 
 # 3. 沿最后一个维度拼接
 merged = np.concatenate([root_trans, root_rot, dof], axis=-1)
 
 # === 保存为 CSV ===
 output_path = (
-  "/home/djw/Desktop/mjlab/src/motion_data/n1_csv/data_from_mocap/Dance_TK.pkl"
+  "/home/djw/Desktop/mocap/motion_data/g1/g1_csv/jump_degree_level5.csv"
 )
 pd.DataFrame(merged).to_csv(output_path, header=False, index=False)
 
