@@ -39,8 +39,8 @@ def fourier_n1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
   )
   self_collision_cfg = ContactSensorCfg(
     name="self_collision",
-    primary=ContactMatch(mode="subtree", pattern="pelvis", entity="robot"),
-    secondary=ContactMatch(mode="subtree", pattern="pelvis", entity="robot"),
+    primary=ContactMatch(mode="subtree", pattern="base_link", entity="robot"),
+    secondary=ContactMatch(mode="subtree", pattern="base_link", entity="robot"),
     fields=("found",),
     reduce="none",
     num_slots=1,
