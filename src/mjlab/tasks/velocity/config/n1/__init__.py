@@ -6,16 +6,16 @@ from .rl_cfg import fourier_n1_ppo_runner_cfg
 
 register_mjlab_task(
   task_id="Mjlab-Velocity-Rough-Fourier-N1",
-  env_cfg=fourier_n1_rough_env_cfg(),
-  play_env_cfg=fourier_n1_rough_env_cfg(play=True),
+  env_cfg=fourier_n1_rough_env_cfg(has_state_estimation=False),
+  play_env_cfg=fourier_n1_rough_env_cfg(has_state_estimation=False,play=True),
   rl_cfg=fourier_n1_ppo_runner_cfg(),
   runner_cls=VelocityOnPolicyRunner,
 )
 
 register_mjlab_task(
   task_id="Mjlab-Velocity-Flat-Fourier-N1",
-  env_cfg=fourier_n1_flat_env_cfg(),
-  play_env_cfg=fourier_n1_flat_env_cfg(play=True),
+  env_cfg=fourier_n1_flat_env_cfg(has_state_estimation=False),
+  play_env_cfg=fourier_n1_flat_env_cfg(has_state_estimation=False,play=True),
   rl_cfg=fourier_n1_ppo_runner_cfg(),
   runner_cls=VelocityOnPolicyRunner,
 )

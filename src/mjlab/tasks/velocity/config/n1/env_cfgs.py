@@ -6,6 +6,7 @@ from mjlab.asset_zoo.robots import (
 )
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs.mdp.actions import JointPositionActionCfg
+from mjlab.managers.manager_term_config import ObservationGroupCfg
 from mjlab.managers.manager_term_config import RewardTermCfg
 from mjlab.sensor import ContactMatch, ContactSensorCfg
 from mjlab.tasks.velocity import mdp
@@ -13,7 +14,10 @@ from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
 
 
-def fourier_n1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
+def fourier_n1_rough_env_cfg(
+  has_state_estimation:bool=True,
+  play: bool = False
+  ) -> ManagerBasedRlEnvCfg:
   """Create Fourier N1 rough terrain velocity configuration."""
   cfg = make_velocity_env_cfg()
 
@@ -116,7 +120,18 @@ def fourier_n1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     weight=-1.0,
     params={"sensor_name": self_collision_cfg.name},
   )
-
+    # Modify observations if we don't have state estimation.
+  if not has_state_estimation:
+    new_policy_terms = {
+      k: v
+      for k, v in cfg.observations["policy"].terms.items()
+      if k not in ["base_lin_vel"]
+    }
+    cfg.observations["policy"] = ObservationGroupCfg(
+      terms=new_policy_terms,
+      concatenate_terms=True,
+      enable_corruption=True,
+    )
   # Apply play mode overrides.
   if play:
     # Effectively infinite episode length.
@@ -135,7 +150,9 @@ def fourier_n1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
   return cfg
 
 
-def fourier_n1_flat_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
+def fourier_n1_flat_env_cfg(
+  has_state_estimation:bool=True,
+  play: bool = False) -> ManagerBasedRlEnvCfg:
   """Create Unitree G1 flat terrain velocity configuration."""
   cfg = fourier_n1_rough_env_cfg(play=play)
 
@@ -148,7 +165,17 @@ def fourier_n1_flat_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
   assert cfg.curriculum is not None
   assert "terrain_levels" in cfg.curriculum
   del cfg.curriculum["terrain_levels"]
-
+  if not has_state_estimation:
+    new_policy_terms = {
+      k: v
+      for k, v in cfg.observations["policy"].terms.items()
+      if k not in ["base_lin_vel"]
+    }
+    cfg.observations["policy"] = ObservationGroupCfg(
+      terms=new_policy_terms,
+      concatenate_terms=True,
+      enable_corruption=True,
+    )
   if play:
     commands = cfg.commands
     assert commands is not None
