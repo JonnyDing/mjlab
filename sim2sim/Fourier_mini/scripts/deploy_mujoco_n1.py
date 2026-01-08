@@ -7,7 +7,7 @@ import onnxruntime
 import torch
 
 xml_path = (
-  "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/mjcf/n1_1.xml"
+  "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/fourier_mini_description/mjcf/n1_1.xml"
 )
 # xml_path:  "/home/ym/Whole_body_tracking/unitree_description/g1_xml.xml"
 
@@ -202,29 +202,29 @@ def pd_control(target_q, q, kp, target_dq, dq, kd):
   return (target_q - q) * kp + (target_dq - dq) * kd
 
 
-joint_xml = [
-  "left_hip_pitch_joint",
-  "left_hip_roll_joint",
-  "left_hip_yaw_joint",
-  "left_knee_pitch_joint",
-  "left_ankle_roll_joint",
-  "left_ankle_pitch_joint",
-  "right_hip_pitch_joint",
-  "right_hip_roll_joint",
-  "right_hip_yaw_joint",
-  "right_knee_pitch_joint",
-  "right_ankle_roll_joint",
-  "right_ankle_pitch_joint",
-  "waist_yaw_joint",
-  "left_shoulder_pitch_joint",
-  "left_shoulder_roll_joint",
-  "left_shoulder_yaw_joint",
-  "left_elbow_pitch_joint",
-  "right_shoulder_pitch_joint",
-  "right_shoulder_roll_joint",
-  "right_shoulder_yaw_joint",
-  "right_elbow_pitch_joint",
-]
+# joint_xml = [
+#   "left_hip_pitch_joint",
+#   "left_hip_roll_joint",
+#   "left_hip_yaw_joint",
+#   "left_knee_pitch_joint",
+#   "left_ankle_roll_joint",
+#   "left_ankle_pitch_joint",
+#   "right_hip_pitch_joint",
+#   "right_hip_roll_joint",
+#   "right_hip_yaw_joint",
+#   "right_knee_pitch_joint",
+#   "right_ankle_roll_joint",
+#   "right_ankle_pitch_joint",
+#   "waist_yaw_joint",
+#   "left_shoulder_pitch_joint",
+#   "left_shoulder_roll_joint",
+#   "left_shoulder_yaw_joint",
+#   "left_elbow_pitch_joint",
+#   "right_shoulder_pitch_joint",
+#   "right_shoulder_roll_joint",
+#   "right_shoulder_yaw_joint",
+#   "right_elbow_pitch_joint",
+# ]
 
 if __name__ == "__main__":
   # get config file name from command line
@@ -233,7 +233,7 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/motions/fall_stand.npz"
+  motion_file = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/motions/fall_stand.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/model/policys/fall_stand.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/policys/fall_stand.onnx"
 
   num_actions = 21
   num_obs = 114
@@ -373,10 +373,10 @@ if __name__ == "__main__":
         # qpos_seq = np.array([qpos_xml[joint_xml.index(joint)] for joint in joint_seq])
         obs[offset : offset + num_actions] = (d.qpos[7 : 7 + num_actions]- joint_pos_array_seq)  # joint positions
         offset += num_actions
-        qvel_xml = d.qvel[6 : 6 + num_actions]  # joint positions
-        qvel_seq = qvel_xml
+        # qvel_xml = d.qvel[6 : 6 + num_actions]  # joint positions
+        # qvel_seq = qvel_xml
         # np.array([qvel_xml[joint_xml.index(joint)] for joint in joint_seq])
-        obs[offset : offset + num_actions] = qvel_seq  # joint velocities
+        obs[offset : offset + num_actions] = d.qvel[6 : 6 + num_actions]  # joint velocities
         offset += num_actions
         obs[offset : offset + num_actions] = action_buffer
 
