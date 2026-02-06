@@ -18,7 +18,17 @@ from mjlab.utils.lab_api.math import (
 )
 from mjlab.viewer.offscreen_renderer import OffscreenRenderer
 from mjlab.viewer.viewer_config import ViewerConfig
-
+def smooth(x, box_pts, device):
+    box = torch.ones(box_pts, device=device) / box_pts
+    num_channels = x.shape[1]
+    x_reshaped = x.T.unsqueeze(0)
+    smoothed = torch.nn.functional.conv1d(
+        x_reshaped,
+        box.view(1, 1, -1).expand(num_channels, 1, -1),
+        groups=num_channels,
+        padding='same'
+    )
+    return smoothed.squeeze(0).T
 
 class MotionLoader:
   def __init__(
@@ -243,7 +253,8 @@ def run_sim(
       ),
       reset_flag,
     ) = motion.get_next_state()
-
+    motion_base_ang_vel= smooth(motion_base_ang_vel,box_pts=19,device=sim.device)
+    motion_dof_vel= smooth(motion_dof_vel,box_pts=19,device=sim.device)
     root_states = robot.data.default_root_state.clone()
     root_states[:, 0:3] = motion_base_pos
     root_states[:, :2] += scene.env_origins[:, :2]

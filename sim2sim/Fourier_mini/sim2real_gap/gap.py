@@ -1,36 +1,48 @@
 import math
 import matplotlib
-matplotlib.use("Agg")  # 禁用 TkAgg，避免图标加载错误
-
+# 使用Agg后端，避免显示问题
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+import os
+
+# 创建保存图像的目录
+output_dir = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/sim2real_gap/plots"
+os.makedirs(output_dir, exist_ok=True)
+print(f"图像保存目录: {output_dir}")
+
+# 设置字体以避免问题
+matplotlib.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'Liberation Sans', 'Bitstream Vera Sans', 'sans-serif']
+matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams['axes.unicode_minus'] = False
 
 # ========== 1. 读取 CSV ==========
-sim_data = "/home/djw/Desktop/mjlab/log_data/motion_data_log.csv"
-real_data = "/home/djw/Desktop/mjlab/Beyondmimic_Deploy_N1/fourier_n1_description/sim2real_gap/2025-11-13-171320.csv"
+sim_data = "/home/djw/Desktop/mjlab/log_data/tau_obs_combined.csv"
+real_data = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/sim2real_gap/kick.csv"
 sim_df = pd.read_csv(sim_data)
 real_df = pd.read_csv(real_data)
-
+import ipdb; ipdb.set_trace()
 
 # ======================
 # 1️⃣ 定义列区间映射
 # ======================
 col_map = {
   "sim": {
-    "motioninput": (1, 43),
-    "anchor_ori": (43, 49),
-    "ang": (49, 52),
-    "qpos_offset": (52, 73),
-    "qvel": (73, 94),
-    # "tau": (94, 115)
+    # sim数据：前21列是tau（不需要可视化），obs从第21列开始
+    "motioninput": (21, 63),  # 42列: 21-62
+    "anchor_ori": (63, 69),   # 6列: 63-68
+    "ang": (69, 72),          # 3列: 69-71
+    "qpos_offset": (72, 93),  # 21列: 72-92
+    "qvel": (93, 114),        # 21列: 93-113
   },
   "real": {
-    "motioninput": (23, 65),
-    "anchor_ori": (65, 71),
-    "ang": (71, 74),
-    "qpos_offset": (74, 95),
-    "qvel": (95, 116),
-    # "tau": (0, 22)
+    # real数据：前23列是tau（不需要可视化）
+    "motioninput": (23, 65),  # 42列: 23-64
+    "anchor_ori": (65, 71),   # 6列: 65-70
+    "ang": (71, 74),          # 3列: 71-73
+    "qpos_offset": (74, 95),  # 21列: 74-94
+    "qvel": (95, 116),        # 21列: 95-115
   },
 }
 
@@ -40,6 +52,7 @@ col_map = {
 # ======================
 def extract_modules(df_sim, df_real, col_map):
   result = {}
+  # 只可视化obs部分，不包含tau
   for key in ["motioninput", "anchor_ori", "ang", "qpos_offset", "qvel"]:
     sim_start, sim_end = col_map["sim"][key]
     real_start, real_end = col_map["real"][key]
@@ -56,7 +69,7 @@ def extract_modules(df_sim, df_real, col_map):
 
 
 # ======================
-# 3️⃣ 绘图模块
+# 3️⃣ 可视化模块（保存图像）
 # ======================
 def plot_category_comparison(data_sim, data_real, title):
   num_dims = data_sim.shape[1]
@@ -79,15 +92,68 @@ def plot_category_comparison(data_sim, data_real, title):
   for j in range(num_dims, len(axes)):
     axes[j].axis("off")
 
-  # plt.tight_layout()
-  plt.show()
+  plt.tight_layout()
+  
+  # 保存图像
+  output_path = os.path.join(output_dir, f"{title}_comparison.png")
+  plt.savefig(output_path, dpi=150, bbox_inches='tight')
+  print(f"  已保存图像: {output_path}")
+  
+  # 打印统计信息
+  print(f"  {title}统计: {num_dims}个维度")
+  print(f"  Sim数据范围: [{np.min(data_sim):.3f}, {np.max(data_sim):.3f}]")
+  print(f"  Real数据范围: [{np.min(data_real):.3f}, {np.max(data_real):.3f}]")
+  mse = np.mean((data_sim - data_real) ** 2)
+  print(f"  MSE: {mse:.6f}")
+  
+  plt.close(fig)  # 关闭图形以释放内存
 
 
 # ======================
-# 4️⃣ 主流程：提取 + 可视化
+# 4️⃣ 主流程：提取 + 可视化 + 保存
 # ======================
 datasets = extract_modules(sim_df, real_df, col_map)
 
+print("=" * 60)
+print("Sim2Real Gap可视化 + 保存")
+print("=" * 60)
+print(f"图像保存目录: {output_dir}")
+print("=" * 60)
+
 for title, data_pair in datasets.items():
-  print(f"正在绘制模块: {title}")
+  print(f"\n处理模块: {title}")
   plot_category_comparison(data_pair["sim"], data_pair["real"], title)
+
+print("\n" + "=" * 60)
+print("处理完成")
+print("=" * 60)
+
+# 计算总体统计
+print("\n总体统计:")
+total_mse = 0
+total_dims = 0
+image_files = []
+for title, data_pair in datasets.items():
+  sim_data = data_pair["sim"]
+  real_data = data_pair["real"]
+  mse = np.mean((sim_data - real_data) ** 2)
+  dims = sim_data.shape[1]
+  total_mse += mse * dims
+  total_dims += dims
+  image_path = os.path.join(output_dir, f"{title}_comparison.png")
+  image_files.append(image_path)
+  print(f"  {title}: MSE={mse:.6f}, 维度={dims}, 图像={os.path.basename(image_path)}")
+
+if total_dims > 0:
+  overall_mse = total_mse / total_dims
+  print(f"\n加权平均MSE: {overall_mse:.6f} (基于{total_dims}个维度)")
+
+print(f"\n生成的图像文件:")
+for img_file in image_files:
+  if os.path.exists(img_file):
+    file_size = os.path.getsize(img_file) / 1024  # KB
+    print(f"  {os.path.basename(img_file)} ({file_size:.1f} KB)")
+  else:
+    print(f"  {os.path.basename(img_file)} (未找到)")
+
+print("=" * 60)

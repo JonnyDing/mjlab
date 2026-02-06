@@ -1,4 +1,5 @@
 import time
+import csv
 
 import mujoco
 import mujoco.viewer
@@ -233,7 +234,14 @@ if __name__ == "__main__":
   # parser.add_argument("config_file", default=,type=str, help="config file name in the config folder")
   # args = parser.parse_args()
   # config_file = "/home/ym/Whole_body_tracking/configs/g1.yaml"
-  motion_file = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/motions/fall_stand.npz"
+  
+  # CSV导出文件路径 - 将tau和obs合并到一个文件中
+  csv_combined_path = "/home/djw/Desktop/mjlab/log_data/tau_obs_combined.csv"
+  
+  # 初始化数据收集列表
+  combined_data = []
+  
+  motion_file = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/motions/kick.npz"
   motion = np.load(motion_file)
   motionpos = motion["body_pos_w"]
   motionquat = motion["body_quat_w"]
@@ -241,7 +249,7 @@ if __name__ == "__main__":
   motioninputvel = motion["joint_vel"]
   i = 0
 
-  policy_path = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/policys/fall_stand.onnx"
+  policy_path = "/home/djw/Desktop/mjlab/sim2sim/Fourier_mini/model/policys/kick.onnx"
 
   num_actions = 21
   num_obs = 114
@@ -311,10 +319,18 @@ if __name__ == "__main__":
     raise ValueError(f"Body {body_name} not found in model")
 
   with mujoco.viewer.launch_passive(m, d) as viewer:
-    # Close the viewer automatically after simulation_duration wall-seconds.
-
+    # 只运行一个动作循环
+    # 获取动作序列长度
+    motion_sequence_length = motioninputpos.shape[0]
+    print(f"动作序列长度: {motion_sequence_length} 帧")
+    
+    # 使用帧数控制循环，而不是时间
+    frame_count = 0
+    max_frames = motion_sequence_length * control_decimation  # 每个动作帧对应control_decimation个仿真步
+    
     start = time.time()
-    while viewer.is_running() and time.time() - start < simulation_duration:
+    # while viewer.is_running() and frame_count < max_frames:
+    while viewer.is_running() and start-time.time() < simulation_duration:
       step_start = time.time()
       if timestep < 2:
         ref_motion_quat = motionquat[timestep, 13, :]
@@ -403,10 +419,43 @@ if __name__ == "__main__":
           # viewer.close()
           timestep=0
       d.ctrl[:] = tau
+      
+      # 收集tau和obs数据（每个时间步都收集），合并到一个数组中
+      combined_sample = np.concatenate([tau, obs])
+      combined_data.append(combined_sample.copy())
+      
       # Pick up changes to the physics state, apply perturbations, update options from GUI.
       viewer.sync()
 
+      # 增加帧计数
+      frame_count += 1
+      
       # Rudimentary time keeping, will drift relative to wall clock.
       time_until_next_step = m.opt.timestep - (time.time() - step_start)
       if time_until_next_step > 0:
         time.sleep(time_until_next_step)
+    
+    # 仿真结束后保存CSV文件
+    print(f"仿真结束，开始保存CSV文件...")
+    print(f"收集到 {len(combined_data)} 个合并样本")
+    
+    # 保存合并数据
+    # if combined_data:
+    #   combined_array = np.array(combined_data)
+    #   print(f"合并数据形状: {combined_array.shape}")
+    #   print(f"tau维度: {num_actions}, obs维度: {num_obs}, 总维度: {num_actions + num_obs}")
+      
+    #   # 保存CSV文件
+    #   np.savetxt(csv_combined_path, combined_array, delimiter=",", fmt="%.6f")
+    #   print(f"合并数据已保存到: {csv_combined_path}")
+      
+    #   # 可选：保存列名信息到单独的文件
+    #   column_info_path = "/home/djw/Desktop/mjlab/log_data/column_info.txt"
+    #   with open(column_info_path, 'w') as f:
+    #     f.write(f"CSV文件列结构:\n")
+    #     f.write(f"前{num_actions}列: tau (关节扭矩)\n")
+    #     f.write(f"后{num_obs}列: obs (观测值)\n")
+    #     f.write(f"总列数: {num_actions + num_obs}\n")
+    #   print(f"列信息已保存到: {column_info_path}")
+    
+    # print("CSV导出完成！")
