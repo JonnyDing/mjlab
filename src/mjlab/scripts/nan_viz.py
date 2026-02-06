@@ -16,7 +16,8 @@ import numpy as np
 import tyro
 import viser
 
-from mjlab.viewer.viser_scene import ViserMujocoScene
+import mjlab
+from mjlab.viewer.viser import ViserMujocoScene
 
 
 class NanDumpViewer:
@@ -167,7 +168,8 @@ def run_viewer(dump_path: tyro.conf.Positional[str]):
 
 def main():
   """CLI entry point for viz-nan command."""
-  tyro.cli(run_viewer, description=__doc__)
+
+  tyro.cli(run_viewer, description=__doc__, config=mjlab.TYRO_FLAGS)
 
 
 if __name__ == "__main__":

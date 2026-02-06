@@ -2,23 +2,101 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from copy import deepcopy
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Literal
 
 import torch
 from prettytable import PrettyTable
 
-from mjlab.managers.manager_base import ManagerBase
-from mjlab.managers.manager_term_config import EventMode, EventTermCfg
+from mjlab.managers.manager_base import ManagerBase, ManagerTermBaseCfg
 
 if TYPE_CHECKING:
   from mjlab.envs import ManagerBasedRlEnv
 
+F = Callable[..., None]
+
+EventMode = Literal["startup", "reset", "interval"]
+
+
+def requires_model_fields(*fields: str) -> Callable[[F], F]:
+  """Mark an event function as requiring specific model fields expanded per-world.
+
+  Fields listed here are registered in ``EventManager.domain_randomization_fields``
+  so that ``sim.expand_model_fields()`` allocates real per-world memory for them.
+
+  Example::
+
+    @requires_model_fields("actuator_gainprm", "actuator_biasprm")
+    def randomize_pd_gains(env, env_ids, ...):
+      ...
+  """
+
+  def decorator(func: F) -> F:
+    func.model_fields = fields  # type: ignore[attr-defined]
+    return func
+
+  return decorator
+
+
+@dataclass(kw_only=True)
+class EventTermCfg(ManagerTermBaseCfg):
+  """Configuration for an event term.
+
+  Event terms trigger operations at specific simulation events. They're commonly
+  used for domain randomization, state resets, and periodic perturbations.
+
+  The three modes determine when the event fires:
+
+  - ``"startup"``: Once when the environment initializes. Use for parameters that
+    should be randomized per-environment but stay constant within an episode (
+    e.g., domain randomization).
+
+  - ``"reset"``: On every episode reset. Use for parameters that should vary
+    between episodes (e.g., initial robot pose, domain randomization).
+
+  - ``"interval"``: Periodically during simulation, controlled by
+    ``interval_range_s``. Use for perturbations that should happen during
+    episodes (e.g., pushing the robot, external disturbances).
+  """
+
+  mode: EventMode
+  """When the event triggers: ``"startup"`` (once at init), ``"reset"`` (every
+  episode), or ``"interval"`` (periodically during simulation)."""
+
+  interval_range_s: tuple[float, float] | None = None
+  """Time range in seconds for interval mode. The next trigger time is uniformly
+  sampled from ``[min, max]``. Required when ``mode="interval"``."""
+
+  is_global_time: bool = False
+  """Whether all environments share the same timer. If True, all envs trigger
+  simultaneously. If False (default), each env has an independent timer that
+  resets on episode reset. Only applies to ``mode="interval"``."""
+
+  min_step_count_between_reset: int = 0
+  """Minimum environment steps between triggers. Prevents the event from firing
+  too frequently when episodes reset rapidly. Only applies to ``mode="reset"``.
+  Set to 0 (default) to trigger on every reset."""
+
+  domain_randomization: bool = False
+  """Whether this event performs domain randomization. If True, the field name
+  from ``params["field"]`` is tracked and exposed via
+  ``EventManager.domain_randomization_fields`` for logging/debugging."""
+
 
 class EventManager(ManagerBase):
+  """Manages event-based operations for the environment.
+
+  The event manager triggers operations at different simulation events: startup
+  (once at initialization), reset (on episode reset), or interval (periodically
+  during simulation). Common uses include domain randomization and state resets.
+  """
+
   _env: ManagerBasedRlEnv
 
   def __init__(self, cfg: dict[str, EventTermCfg], env: ManagerBasedRlEnv):
-    self.cfg = cfg
+    self.cfg = deepcopy(cfg)
     self._mode_term_names: dict[EventMode, list[str]] = dict()
     self._mode_term_cfgs: dict[EventMode, list[EventTermCfg]] = dict()
     self._mode_class_term_cfgs: dict[EventMode, list[EventTermCfg]] = dict()
@@ -217,3 +295,9 @@ class EventManager(ManagerBase):
         field_name = term_cfg.params["field"]
         if field_name not in self._domain_randomization_fields:
           self._domain_randomization_fields.append(field_name)
+
+      func = term_cfg.func
+      if hasattr(func, "model_fields"):
+        for field in func.model_fields:
+          if field not in self._domain_randomization_fields:
+            self._domain_randomization_fields.append(field)

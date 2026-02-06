@@ -11,16 +11,13 @@ Commit: f8e20c880d9c8ec7172a13d3a88a65e3a5a88448
 
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs.mdp.actions import JointPositionActionCfg
-from mjlab.managers.manager_term_config import (
-  ActionTermCfg,
-  CommandTermCfg,
-  EventTermCfg,
-  ObservationGroupCfg,
-  ObservationTermCfg,
-  RewardTermCfg,
-  TerminationTermCfg,
-)
+from mjlab.managers.action_manager import ActionTermCfg
+from mjlab.managers.command_manager import CommandTermCfg
+from mjlab.managers.event_manager import EventTermCfg
+from mjlab.managers.observation_manager import ObservationGroupCfg, ObservationTermCfg
+from mjlab.managers.reward_manager import RewardTermCfg
 from mjlab.managers.scene_entity_config import SceneEntityCfg
+from mjlab.managers.termination_manager import TerminationTermCfg
 from mjlab.scene import SceneCfg
 from mjlab.sim import MujocoCfg, SimulationCfg
 from mjlab.tasks.tracking import mdp
@@ -71,7 +68,9 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
       noise=Unoise(n_min=-0.2, n_max=0.2),
     ),
     "joint_pos": ObservationTermCfg(
-      func=mdp.joint_pos_rel, noise=Unoise(n_min=-0.01, n_max=0.01)
+      func=mdp.joint_pos_rel,
+      noise=Unoise(n_min=-0.01, n_max=0.01),
+      params={"biased": True},
     ),
     "joint_vel": ObservationTermCfg(
       func=mdp.joint_vel_rel, noise=Unoise(n_min=-0.5, n_max=0.5)
@@ -125,7 +124,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
   actions: dict[str, ActionTermCfg] = {
     "joint_pos": JointPositionActionCfg(
-      asset_name="robot",
+      entity_name="robot",
       actuator_names=(".*",),
       scale=0.5,
       use_default_offset=True,
@@ -138,7 +137,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
   commands: dict[str, CommandTermCfg] = {
     "motion": MotionCommandCfg(
-      asset_name="robot",
+      entity_name="robot",
       resampling_time_range=(1.0e9, 1.0e9),
       debug_vis=True,
       pose_range={
@@ -166,7 +165,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     "push_robot": EventTermCfg(
       func=mdp.push_by_setting_velocity,
       mode="interval",
-      interval_range_s=(1.0, 5.0),
+      interval_range_s=(1.0, 3.0),
       params={"velocity_range": VELOCITY_RANGE},
     ),
     "base_com": EventTermCfg(
@@ -178,21 +177,18 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
         "operation": "add",
         "field": "body_ipos",
         "ranges": {
-          0: (-0.05, 0.05),
+          0: (-0.025, 0.025),
           1: (-0.05, 0.05),
           2: (-0.05, 0.05),
         },
       },
     ),
-    "add_joint_default_pos": EventTermCfg(
+    "encoder_bias": EventTermCfg(
       mode="startup",
-      func=mdp.randomize_field,
-      domain_randomization=True,
+      func=mdp.randomize_encoder_bias,
       params={
         "asset_cfg": SceneEntityCfg("robot"),
-        "operation": "add",
-        "field": "qpos0",
-        "ranges": (-0.01, 0.01),
+        "bias_range": (-0.01, 0.01),
       },
     ),
     "foot_friction": EventTermCfg(
@@ -203,19 +199,10 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
         "asset_cfg": SceneEntityCfg("robot", geom_names=()),  # Set per-robot.
         "operation": "abs",
         "field": "geom_friction",
-        "ranges": (0.6, 1.3),
+        "ranges": (0.3, 1.2),
+        "shared_random": True,  # All foot geoms share the same friction.
       },
     ),
-    # "randomize_pd_gains":EventTermCfg(
-    #   mode="reset",
-    #   func=mdp.randomize_pd_gains,
-    #   params={
-    #     "kp_range": (0.95, 1.05),
-    #     "kd_range": (0.95, 1.05),
-    #     "asset_cfg": SceneEntityCfg("robot", joint_names=(".*",)),
-    #     "operation": "scale",
-    #   },
-    # )
   }
 
   ##
@@ -225,7 +212,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
   rewards: dict[str, RewardTermCfg] = {
     "motion_global_root_pos": RewardTermCfg(
       func=mdp.motion_global_anchor_position_error_exp,
-      weight=1.0,
+      weight=0.5,
       params={"command_name": "motion", "std": 0.3},
     ),
     "motion_global_root_ori": RewardTermCfg(
@@ -254,13 +241,11 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
       params={"command_name": "motion", "std": 3.14},
     ),
     "action_rate_l2": RewardTermCfg(func=mdp.action_rate_l2, weight=-1e-1),
-    # "joint_acc_l2": RewardTermCfg(func=mdp.joint_acc_l2, weight=-1e-1),
     "joint_limit": RewardTermCfg(
       func=mdp.joint_pos_limits,
       weight=-10.0,
       params={"asset_cfg": SceneEntityCfg("robot", joint_names=(".*",))},
     ),
-    "torque_rate_l2": RewardTermCfg(func=mdp.joint_torques_l2, weight=-1e-6),
     "self_collisions": RewardTermCfg(
       func=mdp.self_collision_cost,
       weight=-10.0,
@@ -310,7 +295,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     terminations=terminations,
     viewer=ViewerConfig(
       origin_type=ViewerConfig.OriginType.ASSET_BODY,
-      asset_name="robot",
+      entity_name="robot",
       body_name="",  # Set per-robot.
       distance=3.0,
       elevation=-5.0,
