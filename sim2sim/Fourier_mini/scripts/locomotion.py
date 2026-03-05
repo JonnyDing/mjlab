@@ -159,7 +159,7 @@ if __name__ == "__main__":
     action = np.zeros(num_actions, dtype=np.float32)
     obs = np.zeros(num_obs, dtype=np.float32)
     gvec = np.array([0, 0, -1], dtype=np.float32)
-    commanded_velocity = np.array([1.0, 0.0, 0.0], dtype=np.float32)  # 命令速度：前进速度 0.1 m/s
+    commanded_velocity = np.array([0.0, 0.0, 0.0], dtype=np.float32)  # 命令速度：前进速度 0.1 m/s
     counter = 0
     
     # 实时模拟控制（设置为 True 以确保实时模拟，False 以最大速度运行）

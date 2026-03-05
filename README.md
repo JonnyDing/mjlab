@@ -68,8 +68,12 @@ Train a humanoid to mimic reference motions. mjlab uses WandB to manage motion d
 See the [motion preprocessing documentation](https://github.com/HybridRobotics/whole_body_tracking/blob/main/README.md#motion-preprocessing--registry-setup) for setup instructions.
 
 ```bash
-uv run train Mjlab-Tracking-Flat-Unitree-G1 --registry-name your-org/motions/motion-name --env.scene.num-envs 4096
-uv run play Mjlab-Tracking-Flat-Unitree-G1 --wandb-run-path your-org/mjlab/run-id
+uv run train Mjlab-Tracking-Flat-Fourier-N1-No-State-Estimation --registry-name your-org/motions/motion-name --env.scene.num-envs 4096
+uv run play Mjlab-Tracking-Flat-Fourier-N1-No-State-Estimation --wandb-run-path your-org/mjlab/run-id
+
+uv run train Mjlab-Tracking-Flat-Unitree-G1-No-State-Estimation --registry-name your-org/motions/motion-name --env.scene.num-envs 4096
+uv run play Mjlab-Tracking-Flat-Unitree-G1-No-State-Estimation --wandb-run-path your-org/mjlab/run-id
+
 ```
 
 ### 3. Sanity-check with Dummy Agents

@@ -6,8 +6,8 @@ from mjlab.asset_zoo.robots import (
 )
 from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs.mdp.actions import JointPositionActionCfg
-from mjlab.managers.manager_term_config import ObservationGroupCfg
-from mjlab.managers.manager_term_config import RewardTermCfg
+from mjlab.managers.observation_manager import ObservationGroupCfg
+from mjlab.managers.reward_manager import RewardTermCfg
 from mjlab.sensor import ContactMatch, ContactSensorCfg
 from mjlab.tasks.velocity import mdp
 from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg

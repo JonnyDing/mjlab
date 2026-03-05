@@ -109,7 +109,7 @@ DAMPING_6043E = 2.0 * DAMPING_RATIO_6043E * ARMATURE_6043E * NATURAL_FREQ_6043E
 DAMPING_4530E = 2.0 * DAMPING_RATIO_4530E * ARMATURE_4530E * NATURAL_FREQ_4530E
 
 N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
-  joint_names_expr=(
+  target_names_expr=(
     ".*_hip_pitch_joint",
     ".*_knee_pitch_joint",
     ".*_shoulder_pitch_joint",
@@ -121,7 +121,7 @@ N1_ACTUATOR_8029E = BuiltinPositionActuatorCfg(
 )
 
 N1_ACTUATOR_6043E = BuiltinPositionActuatorCfg(
-  joint_names_expr=(
+  target_names_expr=(
     ".*_hip_roll_joint",
     ".*_hip_yaw_joint",
     "waist_yaw_joint",
@@ -132,7 +132,7 @@ N1_ACTUATOR_6043E = BuiltinPositionActuatorCfg(
   damping=DAMPING_6043E,
 )
 N1_ACTUATOR_4530E = BuiltinPositionActuatorCfg(
-  joint_names_expr=(
+  target_names_expr=(
     ".*_ankle_roll_joint",
     ".*_ankle_pitch_joint",
     ".*_shoulder_roll_joint",
@@ -254,7 +254,7 @@ for a in N1_ARTICULATION.actuators:
   assert isinstance(a, BuiltinPositionActuatorCfg)
   e = a.effort_limit
   s = a.stiffness
-  names = a.joint_names_expr
+  names = a.target_names_expr
   assert e is not None
   for n in names:
     N1_ACTION_SCALE[n] = 0.8 * e / s

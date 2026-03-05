@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 ActuatorCfgT = TypeVar("ActuatorCfgT", bound="ActuatorCfg")
 
 
-class TransmissionType(str, Enum):
+class TransmissionType(str, Enum): 
   """Transmission types for actuators."""
 
   JOINT = "joint"

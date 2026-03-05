@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 # 1. 读取文件
-input_path = "/home/djw/Desktop/mocap/motion_data/g1/g1_pkl/jump_degree_level5.pkl"  # 你可以换成自己的路径
+input_path = "/home/djw/Desktop/mocap/motion_data/motion_retarget/robot_type/unitree_g1/g1_pkl/data_from_mocap/wushi1.pkl"  # 你可以换成自己的路径
 with open(input_path, "rb") as f:
   data = pickle.load(f)
 # data = next(iter(data.values()))
@@ -17,7 +17,7 @@ merged = np.concatenate([root_trans, root_rot, dof], axis=-1)
 
 # === 保存为 CSV ===
 output_path = (
-  "/home/djw/Desktop/mocap/motion_data/g1/g1_csv/jump_degree_level5.csv"
+  "/home/djw/Desktop/mocap/motion_data/motion_retarget/robot_type/unitree_g1/g1_csv/wushi1.csv"
 )
 pd.DataFrame(merged).to_csv(output_path, header=False, index=False)
 

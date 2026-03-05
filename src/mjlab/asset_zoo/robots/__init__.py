@@ -16,3 +16,9 @@ from mjlab.asset_zoo.robots.unitree_go1.go1_constants import (
 from mjlab.asset_zoo.robots.unitree_go1.go1_constants import (
   get_go1_robot_cfg as get_go1_robot_cfg,
 )
+from mjlab.asset_zoo.robots.fourier_n1.n1_constants import(
+  N1_ACTION_SCALE as N1_ACTION_SCALE,
+)
+from mjlab.asset_zoo.robots.fourier_n1.n1_constants import(
+  get_n1_robot_cfg as get_n1_robot_cfg,
+)
